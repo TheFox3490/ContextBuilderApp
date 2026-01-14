@@ -1,0 +1,205 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:views="using:ContextBuilderApp.Views"
+        xmlns:vm="using:ContextBuilderApp.ViewModels"
+        xmlns:vmDialogs="using:ContextBuilderApp.ViewModels.Dialogs"
+        mc:Ignorable="d" 
+        d:DesignWidth="600" d:DesignHeight="800"
+        x:Class="ContextBuilderApp.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/avalonia-logo.ico"
+        Title="Context Builder"
+        Width="600" Height="650"
+        MinWidth="550" MinHeight="500"
+        WindowStartupLocation="CenterScreen">
+
+    <Panel>
+
+        <Grid Margin="20"
+              IsEnabled="{Binding !IsOverlayVisible}"
+              RowDefinitions="Auto, *">
+
+            <StackPanel Grid.Row="0" Spacing="10">
+
+                <Grid MinHeight="40" ColumnDefinitions="*, Auto">
+                    <TextBlock Grid.Column="0"
+                               VerticalAlignment="Center"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Text="Настройки проекта" />
+
+                    <Button Grid.Column="1"
+                            Command="{Binding CloseProjectCommand}"
+                            Content="🗑 Сбросить"
+                            Classes="transparent"
+                            IsVisible="{Binding IsProjectLoaded}" />
+                </Grid>
+
+                <TextBlock Margin="0,5,0,0" Text="Корневая папка проекта:" />
+
+                <views:FilePicker DialogTitle="Выбор папки проекта"
+                                  IsFolderMode="True"
+                                  Path="{Binding TargetFolderPath}"
+                                  Watermark="Выберите папку с исходным кодом..." />
+
+                <Button Margin="0,15,0,0" 
+                        HorizontalAlignment="Stretch" 
+                        HorizontalContentAlignment="Center"
+                        Height="40"
+                        Background="Black" Foreground="White"
+                        FontWeight="Bold"
+                        Command="{Binding GenerateContextCommand}"
+                        IsEnabled="{Binding IsProjectLoaded}">
+                    
+                    <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                        <TextBlock Text="🚀" VerticalAlignment="Center"/> <TextBlock Text="СГЕНЕРИРОВАТЬ КОНТЕКСТ" VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Button>
+
+                <Separator Margin="0,15" />
+            </StackPanel>
+
+            <Grid Grid.Row="1" 
+                  RowDefinitions="Auto, *" 
+                  IsEnabled="{Binding IsProjectLoaded}">
+
+                <Border Grid.Row="0" 
+                        Margin="0,0,0,10"
+                        Background="#F9F9F9" 
+                        BorderBrush="#E0E0E0" 
+                        BorderThickness="1" 
+                        CornerRadius="4" 
+                        Padding="10">
+                    
+                    <Grid ColumnDefinitions="Auto, *, Auto, Auto, Auto">
+                        
+                        <TextBlock Text="Пресет:" 
+                                VerticalAlignment="Center" 
+                                FontWeight="SemiBold"
+                                Margin="0,0,10,0"/>
+
+                        <ComboBox Grid.Column="1"
+                                HorizontalAlignment="Stretch"
+                                ItemsSource="{Binding Filters.Presets}"
+                                SelectedItem="{Binding Filters.SelectedPreset}">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" />
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+
+                        <StackPanel Grid.Column="1" 
+                                    Orientation="Horizontal" 
+                                    HorizontalAlignment="Right" 
+                                    VerticalAlignment="Center" 
+                                    Margin="0,0,30,0"
+                                    IsHitTestVisible="False"
+                                    IsVisible="{Binding Filters.HasUnsavedChanges}">
+                            <TextBlock Text="*" 
+                                    Foreground="Orange" 
+                                    FontWeight="Bold" 
+                                    FontSize="16" 
+                                    Margin="0,5,0,0"/>
+                            <TextBlock Text="не сохранено" 
+                                    Foreground="Orange" 
+                                    FontSize="10" 
+                                    VerticalAlignment="Center" 
+                                    Margin="2,2,0,0"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="5" Margin="10,0,0,0">
+                            
+                            <Button Command="{Binding Filters.SaveCurrentPresetCommand}"
+                                    ToolTip.Tip="Сохранить изменения"
+                                    Content="💾"
+                                    Padding="8,5"/>
+                            
+                            <Button ToolTip.Tip="Отменить изменения (перезагрузить)"
+                                    Command="{Binding Filters.RevertChangesCommand}"
+                                    Content="↩️"
+                                    Padding="8,5"/>
+                                    
+                        </StackPanel>
+
+                        <Rectangle Grid.Column="3" Width="1" Fill="#CCC" Margin="10,2" />
+
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" Spacing="5" Margin="10,0,0,0">
+                            <Button ToolTip.Tip="Создать новый пресет"
+                                    Command="{Binding Filters.CreateNewPresetCommand}"
+                                    Content="➕" />
+                            <Button ToolTip.Tip="Удалить текущий пресет"
+                                    Command="{Binding Filters.DeleteCurrentPresetCommand}"
+                                    Content="🗑"
+                                    Foreground="#CC0000" />
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <TabControl Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}">
+                    <TabItem FontSize="15" FontWeight="Medium" Header="Папки">
+                        <views:FilterEditor Title="Игнорируемые папки"
+                                            Margin="0,15,0,0"
+                                            AddDialogCommand="{Binding Filters.AddFolderViaTreeCommand}"
+                                            IconType="Folder"
+                                            IsTextMode="False"
+                                            ItemsSource="{Binding Filters.IgnoredFolders}"
+                                            RemoveCommand="{Binding Filters.RemoveFolderCommand}" />
+                    </TabItem>
+
+                    <TabItem FontSize="15" FontWeight="Medium" Header="Файлы">
+                        <views:FilterEditor Title="Игнорируемые файлы"
+                                            Margin="0,15,0,0"
+                                            AddDialogCommand="{Binding Filters.AddFileViaTreeCommand}"
+                                            IconType="File"
+                                            IsTextMode="False"
+                                            ItemsSource="{Binding Filters.IgnoredFiles}"
+                                            RemoveCommand="{Binding Filters.RemoveFileCommand}" />
+                    </TabItem>
+
+                    <TabItem FontSize="15" FontWeight="Medium" Header="Расширения">
+                        <views:FilterEditor Title="Игнорируемые расширения"
+                                            Margin="0,15,0,0"
+                                            AddTextCommand="{Binding Filters.AddExtensionCommand}"
+                                            IconType="None"
+                                            IsTextMode="True"
+                                            ItemsSource="{Binding Filters.IgnoredExtensions}"
+                                            RemoveCommand="{Binding Filters.RemoveExtensionCommand}"
+                                            TextEntryValue="{Binding Filters.NewExtensionText}" />
+                    </TabItem>
+                </TabControl>
+            </Grid>
+        </Grid>
+
+        <Grid Name="OverlayLayer" IsVisible="{Binding IsOverlayVisible}">
+            <Border Background="Black" Opacity="0.4" />
+
+            <ContentControl HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Content="{Binding OverlayViewModel}">
+                <ContentControl.DataTemplates>
+                    
+                    <DataTemplate DataType="vm:ProjectFolderDialogViewModel">
+                        <views:ProjectFolderSelector />
+                    </DataTemplate>
+                    
+                    <DataTemplate DataType="vmDialogs:TextInputDialogViewModel">
+                        <views:TextInputDialog />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vmDialogs:ConfirmationDialogViewModel">
+                        <views:ConfirmationDialog />
+                    </DataTemplate>
+
+                    <DataTemplate DataType="vmDialogs:ContextGenerationViewModel">
+                        <views:ContextGenerationDialog />
+                    </DataTemplate>
+
+                </ContentControl.DataTemplates>
+            </ContentControl>
+        </Grid>
+
+    </Panel>
+</Window>

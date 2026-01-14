@@ -1,0 +1,34 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:vm="using:ContextBuilderApp.ViewModels.Dialogs"
+             mc:Ignorable="d" d:DesignWidth="400" d:DesignHeight="220"
+             x:Class="ContextBuilderApp.Views.TextInputDialog"
+             x:DataType="vm:TextInputDialogViewModel">
+
+    <Border Background="White" CornerRadius="8" BoxShadow="0 4 10 0 #40000000" Width="400">
+        <StackPanel Margin="20" Spacing="15">
+            <TextBlock Text="{Binding Title}" FontWeight="Bold" FontSize="18"/>
+
+            <StackPanel Spacing="5">
+                <TextBox Text="{Binding InputText}" 
+                         Watermark="Введите название..." />
+                
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="#D00000"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding ErrorMessage, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10">
+                <Button Content="Отмена" Command="{Binding CancelCommand}"/>
+                <Button Content="ОК" 
+                        Classes="accent" 
+                        Command="{Binding ConfirmCommand}" 
+                        IsDefault="True"/>
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</UserControl>

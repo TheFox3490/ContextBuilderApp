@@ -1,0 +1,101 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ContextBuilderApp.ViewModels.Dialogs"
+             x:Class="ContextBuilderApp.Views.ContextGenerationDialog"
+             x:DataType="vm:ContextGenerationViewModel">
+
+    <UserControl.Styles>
+        <Style Selector="Button.manual-border:disabled /template/ ContentPresenter#PART_ContentPresenter">
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#EEE"/>
+            <Setter Property="Background" Value="#F5F5F5"/>
+        </Style>
+    </UserControl.Styles>
+
+    <Border Background="White" CornerRadius="12" BoxShadow="0 8 30 0 #60000000" 
+            Width="500" Height="500">
+        
+        <Grid RowDefinitions="Auto, *, Auto" Margin="20">
+            
+            <Grid Grid.Row="0" ColumnDefinitions="*, Auto">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="Генерация контекста" FontSize="20" FontWeight="Bold"/>
+                    <TextBlock Text="Результат готов для отправки в LLM" 
+                               FontSize="14" Foreground="#666" 
+                               IsVisible="{Binding !IsGenerating}"/>
+                </StackPanel>
+                <Button Grid.Column="1" Command="{Binding CloseCommand}" 
+                        Content="✕" Classes="transparent" FontSize="16"/>
+            </Grid>
+
+            <StackPanel Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Center" 
+                        Spacing="15" IsVisible="{Binding IsGenerating}">
+                <ProgressBar IsIndeterminate="True" Width="200" Height="4"/>
+                <TextBlock Text="{Binding LoadingMessage}" HorizontalAlignment="Center" Foreground="#888"/>
+            </StackPanel>
+
+            <Grid Grid.Row="1" RowDefinitions="Auto, *" Margin="0,20" IsVisible="{Binding !IsGenerating}">
+                <Border Grid.Row="0" Background="#F4F4F4" CornerRadius="6" Padding="15" Margin="0,0,0,15">
+                    <Grid ColumnDefinitions="*, *, *">
+                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                            <TextBlock Text="Файлов" FontSize="12" Foreground="#888" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Result.FileCount}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <Rectangle Grid.Column="0" HorizontalAlignment="Right" Width="1" Fill="#DDD" Height="30"/>
+                        <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                            <TextBlock Text="Размер" FontSize="12" Foreground="#888" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Result.TotalBytes, StringFormat='{}{0:N0} B'}" FontSize="18" FontWeight="Bold" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <Rectangle Grid.Column="1" HorizontalAlignment="Right" Width="1" Fill="#DDD" Height="30"/>
+                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                            <TextBlock Text="~Токенов" FontSize="12" Foreground="#888" HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding Result.EstimatedTokens, StringFormat='{}{0:N0}'}" FontSize="18" FontWeight="Bold" Foreground="#007ACC" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+                <Border Grid.Row="1" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                    <ScrollViewer>
+                        <SelectableTextBlock Text="{Binding Result.TreePreview}" 
+                                             FontFamily="Consolas, Monospace" FontSize="13" Padding="10"/>
+                    </ScrollViewer>
+                </Border>
+            </Grid>
+
+            <Grid Grid.Row="2" ColumnDefinitions="Auto, *, Auto" IsVisible="{Binding !IsGenerating}">
+                
+                <Button Grid.Column="0"
+                        Content="Закрыть" 
+                        Command="{Binding CloseCommand}" 
+                        Height="35"
+                        VerticalContentAlignment="Center"/>
+
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10">
+                    
+                    <Button Command="{Binding SaveToFileCommand}"
+                            Classes="manual-border"
+                            Height="35" Width="35"
+                            Background="White"
+                            BorderBrush="#CCC"
+                            BorderThickness="1"
+                            ToolTip.Tip="Сохранить результат в файл..."
+                            Padding="0"
+                            HorizontalContentAlignment="Center"
+                            VerticalContentAlignment="Center">
+                        <TextBlock Text="💾" FontSize="16" />
+                    </Button>
+
+                    <Button Content="{Binding CopyButtonText}" 
+                            Command="{Binding CopyToClipboardCommand}" 
+                            Classes="accent" 
+                            Background="#007ACC" Foreground="White"
+                            FontWeight="Bold"
+                            Height="35" Width="200"
+                            Padding="0"
+                            VerticalContentAlignment="Center"
+                            HorizontalContentAlignment="Center"/>
+                </StackPanel>
+            </Grid>
+            
+        </Grid>
+    </Border>
+</UserControl>

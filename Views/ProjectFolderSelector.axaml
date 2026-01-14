@@ -1,0 +1,65 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ContextBuilderApp.ViewModels"
+             xmlns:fs="using:ContextBuilderApp.ViewModels.FileSystem"
+             x:Class="ContextBuilderApp.Views.ProjectFolderSelector"
+             x:DataType="vm:ProjectFolderDialogViewModel">
+
+    <Border Background="White" CornerRadius="8" BoxShadow="0 4 10 0 #40000000" Width="500" Height="600">
+        <Grid RowDefinitions="Auto, *, Auto" Margin="15">
+            
+            <TextBlock Grid.Row="0" Text="Выберите элемент" FontWeight="Bold" FontSize="18" Margin="0,0,0,10"/>
+
+            <Border Grid.Row="1" BorderBrush="#E0E0E0" BorderThickness="1" CornerRadius="4">
+                
+                <TreeView ItemsSource="{Binding RootNodes}" 
+                          SelectedItem="{Binding SelectedNode, Mode=TwoWay}"
+                          ScrollViewer.HorizontalScrollBarVisibility="Auto">
+                    
+                    <TreeView.DataTemplates>
+                        
+                        <TreeDataTemplate DataType="fs:FolderViewModel" ItemsSource="{Binding Children}">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock Text="📁"/> 
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </TreeDataTemplate>
+
+                        <DataTemplate DataType="fs:FileViewModel">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock Text="📄"/> 
+                                <TextBlock Text="{Binding Name}" VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+
+                        <DataTemplate DataType="fs:StatusViewModel">
+                            <StackPanel Orientation="Horizontal" Spacing="5">
+                                <TextBlock Text="⏳" IsVisible="{Binding Type, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static fs:StatusType.Loading}}"/>
+                                <TextBlock Text="❌" IsVisible="{Binding Type, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static fs:StatusType.Error}}"/>
+                                <TextBlock Text="🔒" IsVisible="{Binding Type, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static fs:StatusType.NoAccess}}"/>
+                                <TextBlock Text="📭" IsVisible="{Binding Type, Converter={x:Static ObjectConverters.Equal}, ConverterParameter={x:Static fs:StatusType.Empty}}"/>
+                                
+                                <TextBlock Text="{Binding Name}" 
+                                           FontStyle="Italic" 
+                                           Foreground="#888888"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </DataTemplate>
+
+                    </TreeView.DataTemplates>
+                    
+                    <TreeView.Styles>
+                        <Style Selector="TreeViewItem" x:CompileBindings="False">
+                            <Setter Property="IsExpanded" Value="{Binding IsExpanded, Mode=TwoWay}"/>
+                        </Style>
+                    </TreeView.Styles>
+                </TreeView>
+            </Border>
+
+            <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Spacing="10" Margin="0,15,0,0">
+                <Button Content="Отмена" Command="{Binding CancelCommand}"/>
+                <Button Content="Выбрать" Classes="accent" Command="{Binding ConfirmCommand}"/>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

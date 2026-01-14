@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ContextBuilderApp.Views.FilePicker"
+             x:Name="PickerRoot">
+
+    <UserControl.Resources>
+        </UserControl.Resources>
+
+    <Grid ColumnDefinitions="*, 10, Auto">
+
+        <Border Grid.Column="0"
+                Background="#F2F2F2"
+                BorderBrush="#D0D0D0"
+                BorderThickness="1"
+                CornerRadius="6"
+                Padding="10, 8">
+            
+            <Panel>
+                <TextBlock Text="{Binding #PickerRoot.Watermark}"
+                           Foreground="#999999"
+                           FontStyle="Italic"
+                           VerticalAlignment="Center"
+                           IsHitTestVisible="False"
+                           IsVisible="{Binding #PickerRoot.Path, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+
+                <SelectableTextBlock Text="{Binding #PickerRoot.Path}"
+                                     Foreground="Black"
+                                     FontSize="14"
+                                     FontWeight="Medium"
+                                     VerticalAlignment="Center"
+                                     TextTrimming="CharacterEllipsis"
+                                     ToolTip.Tip="{Binding #PickerRoot.Path}" 
+                                     IsVisible="{Binding #PickerRoot.Path, Converter={x:Static StringConverters.IsNotNullOrEmpty}}"/>
+            </Panel>
+        </Border>
+
+        <Button Grid.Column="2"
+                Content="..."
+                Padding="15, 6"
+                Cursor="Hand"
+                VerticalAlignment="Stretch"
+                VerticalContentAlignment="Center"
+                Click="OnBrowseClick"/>
+
+    </Grid>
+</UserControl>

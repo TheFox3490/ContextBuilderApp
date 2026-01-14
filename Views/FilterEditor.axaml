@@ -1,0 +1,102 @@
+<UserControl
+    x:Class="ContextBuilderApp.Views.FilterEditor"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:conv="using:ContextBuilderApp.Converters"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:v="using:ContextBuilderApp.Views"
+    x:Name="RootEditor"
+    d:DesignHeight="300"
+    d:DesignWidth="400"
+    mc:Ignorable="d"> 
+    <UserControl.Resources>
+        <conv:IconTypeToVisibilityConverter x:Key="IconConv" />
+    </UserControl.Resources>
+
+    <Grid RowDefinitions="Auto, *, Auto">
+
+        <TextBlock
+            Grid.Row="0"
+            Margin="0,0,0,10"
+            FontWeight="Bold"
+            Text="{Binding #RootEditor.Title}" />
+
+        <Border
+            Grid.Row="1"
+            Background="White"
+            BorderBrush="#E0E0E0"
+            BorderThickness="1"
+            CornerRadius="4">
+
+            <ListBox
+                Background="Transparent"
+                ItemsSource="{Binding #RootEditor.ItemsSource}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Grid Background="Transparent" ColumnDefinitions="*, Auto">
+
+                            <Grid
+                                Grid.Column="0"
+                                VerticalAlignment="Center"
+                                ColumnDefinitions="Auto, *">
+
+                                <Panel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock
+                                        FontSize="16"
+                                        IsVisible="{Binding #RootEditor.IconType, Converter={StaticResource IconConv}, ConverterParameter={x:Static v:FilterIconType.Folder}}"
+                                        Text="📁" />
+
+                                    <TextBlock
+                                        FontSize="16"
+                                        IsVisible="{Binding #RootEditor.IconType, Converter={StaticResource IconConv}, ConverterParameter={x:Static v:FilterIconType.File}}"
+                                        Text="📄" />
+                                </Panel>
+
+                                <TextBlock
+                                    Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Text="{Binding}"
+                                    TextTrimming="CharacterEllipsis"
+                                    ToolTip.Tip="{Binding}" /> 
+                            </Grid>
+
+                            <Button
+                                Grid.Column="1"
+                                Width="30"
+                                Height="30"
+                                Margin="5,0,0,0"
+                                Padding="0"
+                                VerticalAlignment="Center"
+                                HorizontalContentAlignment="Center"
+                                VerticalContentAlignment="Center"
+                                Command="{Binding #RootEditor.RemoveCommand}"
+                                CommandParameter="{Binding}"
+                                Content="❌" />
+                        </Grid>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </Border>
+
+        <Panel Grid.Row="2" Margin="0,10,0,0">
+            <Button
+                HorizontalAlignment="Stretch"
+                HorizontalContentAlignment="Center"
+                Command="{Binding #RootEditor.AddDialogCommand}"
+                Content="➕ Добавить..."
+                IsVisible="{Binding !#RootEditor.IsTextMode}" />
+
+            <Grid ColumnDefinitions="*, 10, Auto" IsVisible="{Binding #RootEditor.IsTextMode}">
+                <TextBox
+                    Grid.Column="0"
+                    Text="{Binding #RootEditor.TextEntryValue, Mode=TwoWay}"
+                    Watermark="Например .exe" />
+                <Button
+                    Grid.Column="2"
+                    Command="{Binding #RootEditor.AddTextCommand}"
+                    Content="Добавить" />
+            </Grid>
+        </Panel>
+    </Grid>
+</UserControl>
